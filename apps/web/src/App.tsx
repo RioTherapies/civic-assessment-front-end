@@ -717,7 +717,7 @@ export default function App() {
           <p className="text-slate-500 mb-6 text-center max-w-lg text-sm sm:text-base">
             This chart maps your unique alignment across the six dimensions of civic work.
           </p>
-          <RadarChart scores={finalScores} />
+          {finalScores && <RadarChart scores={finalScores} />}
         </section>
 
         <section>

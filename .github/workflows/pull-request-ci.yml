@@ -143,8 +143,8 @@ jobs:
         with:
           name: "vitest-html-${{ env.SHORT_SHA }}"
           path: |
-            packages/core/vitest-report/index.html
             packages/core/vitest-report/**/*
+            apps/web/vitest-report/**/*
           if-no-files-found: warn
 
       - name: Upload coverage HTML
@@ -153,6 +153,6 @@ jobs:
         with:
           name: "coverage-html-${{ env.SHORT_SHA }}"
           path: |
-            packages/core/coverage/index.html
             packages/core/coverage/**/*
+            apps/web/coverage/**/*
           if-no-files-found: warn

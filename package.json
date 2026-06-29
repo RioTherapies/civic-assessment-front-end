@@ -10,8 +10,8 @@
     "build": "npm run build -w @rio/civic-assessment && npm run build -w @rio/civic-assessment-web",
     "dev": "npm run dev -w @rio/civic-assessment-web",
     "lint": "eslint .",
-    "test": "npm run test -w @rio/civic-assessment",
-    "test:coverage": "npm run test:coverage -w @rio/civic-assessment",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "postinstall": "git config core.hooksPath .githooks || true"
   },

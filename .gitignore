@@ -7,3 +7,5 @@ dist
 /vitest-report
 packages/core/coverage
 packages/core/vitest-report
+apps/web/coverage
+apps/web/vitest-report
