@@ -1,0 +1,14 @@
+{
+  "name": "rio-civic-assessment",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @rio/civic-assessment && npm run build -w @rio/civic-assessment-web",
+    "dev": "npm run dev -w @rio/civic-assessment-web",
+    "test": "npm run test -w @rio/civic-assessment",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
