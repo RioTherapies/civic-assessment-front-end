@@ -2,3 +2,8 @@ node_modules
 dist
 *.local
 .DS_Store
+
+/coverage
+/vitest-report
+packages/core/coverage
+packages/core/vitest-report

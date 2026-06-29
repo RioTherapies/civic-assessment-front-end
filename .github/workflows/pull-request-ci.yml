@@ -1,0 +1,158 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint:
+    name: ESLint check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Derive short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Run lint check
+        id: lint
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run lint 2>&1 | tee "lint-${{ env.SHORT_SHA }}.log"
+
+      - name: Upload lint output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "lint-${{ env.SHORT_SHA }}"
+          path: "lint-${{ env.SHORT_SHA }}.log"
+          if-no-files-found: warn
+
+  typecheck:
+    name: TypeScript compile check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Derive short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Run typecheck
+        id: typecheck
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run typecheck 2>&1 | tee "typecheck-${{ env.SHORT_SHA }}.log"
+
+      - name: Upload typecheck output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "typecheck-${{ env.SHORT_SHA }}"
+          path: "typecheck-${{ env.SHORT_SHA }}.log"
+          if-no-files-found: warn
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Derive short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Run build
+        id: build
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee "build-${{ env.SHORT_SHA }}.log"
+
+      - name: Upload build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "build-${{ env.SHORT_SHA }}"
+          path: "build-${{ env.SHORT_SHA }}.log"
+          if-no-files-found: warn
+
+  tests-and-coverage:
+    name: Tests + coverage verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Derive short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Run tests with coverage
+        id: coverage
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:coverage 2>&1
+
+      - name: Upload test HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "vitest-html-${{ env.SHORT_SHA }}"
+          path: |
+            packages/core/vitest-report/index.html
+            packages/core/vitest-report/**/*
+          if-no-files-found: warn
+
+      - name: Upload coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "coverage-html-${{ env.SHORT_SHA }}"
+          path: |
+            packages/core/coverage/index.html
+            packages/core/coverage/**/*
+          if-no-files-found: warn

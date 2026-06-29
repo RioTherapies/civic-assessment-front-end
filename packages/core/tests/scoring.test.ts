@@ -4,9 +4,11 @@ import {
   pagesData,
   promptData,
   scoreAssessment,
+  calculateRawScores,
   calculateScores,
   calculateTypes,
   DIMENSIONS,
+  type AssessmentAnswers,
 } from '../src/index.js';
 
 describe('scoreAssessment', () => {
@@ -81,5 +83,17 @@ describe('calculateTypes', () => {
     );
     const types = calculateTypes(scores);
     expect(types.length).toBeGreaterThan(0);
+  });
+
+  it('caps types at maxTypes when many dimensions exceed the threshold', () => {
+    const scores = { R: 1, I: 1, A: 1, S: -1, E: -1, C: -1 };
+    expect(calculateTypes(scores, 1)).toHaveLength(1);
+  });
+});
+
+describe('calculateRawScores', () => {
+  it('skips undefined answer values', () => {
+    const answers = { R1: 3, R2: undefined } as AssessmentAnswers;
+    expect(calculateRawScores(answers).R).toBe(3);
   });
 });
