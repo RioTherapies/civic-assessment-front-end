@@ -21,6 +21,12 @@ import {
   type ScoredCivicAction,
 } from '@rio/civic-assessment';
 
+type AppRoute = 'home' | 'actions' | 'consultation' | 'about' | `type-${Dimension}`;
+type AppStep = 'welcome' | 'consent' | 'quiz' | 'results';
+
+const DIMENSION_LIST: Dimension[] = ['R', 'I', 'A', 'S', 'E', 'C'];
+const LIKERT_VALUES: LikertValue[] = [1, 2, 3, 4, 5];
+
 const activismTypeIcons: Record<Dimension, React.ReactNode> = {
   R: <Wrench className="w-12 h-12 text-teal-600 mb-4" />,
   I: <Search className="w-12 h-12 text-blue-600 mb-4" />,
@@ -37,8 +43,8 @@ const activismTypes = Object.fromEntries(
   ])
 ) as Record<Dimension, (typeof activismTypeData)[Dimension] & { icon: React.ReactNode }>;
 
-const RadarChart = ({ scores }) => {
-  const dimensions = ['R', 'I', 'A', 'S', 'E', 'C'];
+const RadarChart = ({ scores }: { scores: DimensionScores }) => {
+  const dimensions = DIMENSION_LIST;
   const size = 320;
   const center = size / 2;
   const radius = (size / 2) - 40; 
@@ -46,7 +52,7 @@ const RadarChart = ({ scores }) => {
   const angleStep = (Math.PI * 2) / 6;
   const startAngle = -Math.PI / 2;
 
-  const getPoint = (score, index) => {
+  const getPoint = (score: number, index: number) => {
     const normalizedDistance = (Math.max(0, Math.min(score, 3)) / 3) * radius;
     const angle = startAngle + (index * angleStep);
     return {
@@ -121,7 +127,7 @@ const RadarChart = ({ scores }) => {
   );
 };
 
-const TypeDetail = ({ typeId }) => {
+const TypeDetail = ({ typeId }: { typeId: Dimension }) => {
   const data = activismTypes[typeId];
   if (!data) return null;
 
@@ -150,7 +156,7 @@ const TypeDetail = ({ typeId }) => {
 };
 
 const ActionsDirectory = () => {
-  const [expandedActionId, setExpandedActionId] = useState(null);
+  const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', action: '', description: '' });
@@ -158,12 +164,12 @@ const ActionsDirectory = () => {
   // Sorting civic actions from least time commitment to most
   const sortedActions = [...civicActions].sort((a, b) => a.Time - b.Time);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
@@ -225,7 +231,7 @@ const ActionsDirectory = () => {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="description">Action Description</label>
               <textarea 
-                id="description" name="description" rows="3" required
+                id="description" name="description" rows={3} required
                 value={formData.description} onChange={handleInputChange}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
                 placeholder="Describe what the action is and why it's impactful..."
@@ -251,7 +257,7 @@ const ActionsDirectory = () => {
         <div className="space-y-3 sm:space-y-4">
           {sortedActions.map((action, index) => {
             const isExpanded = expandedActionId === action.name;
-            const badges = ['R', 'I', 'A', 'S', 'E', 'C'].filter(dim => action[dim] >= 1.5);
+            const badges = DIMENSION_LIST.filter((dim) => action[dim] >= 1.5);
             const badgeNames = badges.map(b => dimensionNames[b]).join(', ');
 
             return (
@@ -324,12 +330,12 @@ const ConsultationPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', location: '', goals: '' });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
@@ -403,7 +409,7 @@ const ConsultationPage = () => {
                 <Calendar className="w-4 h-4 mr-2 text-slate-400" /> Briefly describe your civic goals
               </label>
               <textarea 
-                id="goals" name="goals" rows="4" required
+                id="goals" name="goals" rows={4} required
                 value={formData.goals} onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
                 placeholder="I want to help with environmental causes but I only have 2 hours a week..."
@@ -485,8 +491,8 @@ const AboutUs = () => {
 };
 
 export default function App() {
-  const [currentRoute, setCurrentRoute] = useState('home');
-  const [step, setStep] = useState('welcome');
+  const [currentRoute, setCurrentRoute] = useState<AppRoute>('home');
+  const [step, setStep] = useState<AppStep>('welcome');
   const [currentPage, setCurrentPage] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswers>({});
   const [, setResearchConsent] = useState<boolean | null>(null);
@@ -501,7 +507,7 @@ export default function App() {
 
   const totalPages = pagesData.length;
 
-  const navigateTo = (route) => {
+  const navigateTo = (route: AppRoute) => {
     setCurrentRoute(route);
     setIsMobileMenuOpen(false);
     setIsDropdownOpen(false);
@@ -517,7 +523,7 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  const beginQuiz = (consentValue) => {
+  const beginQuiz = (consentValue: boolean) => {
     setResearchConsent(consentValue);
     setStep('quiz');
     window.scrollTo(0, 0);
@@ -648,7 +654,7 @@ export default function App() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-2">
                 <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider hidden sm:block w-16">Dislike</span>
                 <div className="flex justify-between w-full sm:w-auto sm:justify-center gap-2 sm:gap-6">
-                  {[1, 2, 3, 4, 5].map((val) => (
+                  {LIKERT_VALUES.map((val) => (
                     <label key={val} className="flex flex-col items-center cursor-pointer group flex-1 sm:flex-none">
                       <input type="radio" name={`prompt-${code}`} value={val} checked={answers[code] === val} onChange={() => handleSelectOption(code, val)} className="sr-only" />
                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center transition-all ${answers[code] === val ? 'border-blue-600 bg-blue-600' : 'border-slate-300 group-hover:border-blue-400 bg-white'}`}>
@@ -711,7 +717,7 @@ export default function App() {
           <p className="text-slate-500 mb-6 text-center max-w-lg text-sm sm:text-base">
             This chart maps your unique alignment across the six dimensions of civic work.
           </p>
-          <RadarChart scores={finalScores} />
+          {finalScores && <RadarChart scores={finalScores} />}
         </section>
 
         <section>
@@ -725,7 +731,7 @@ export default function App() {
           <div className="space-y-3 sm:space-y-4">
             {visibleActions.map((action, index) => {
               const isExpanded = expandedActionId === action.id;
-              const badges = ['R', 'I', 'A', 'S', 'E', 'C'].filter(dim => action[dim] >= 1.5);
+              const badges = DIMENSION_LIST.filter((dim) => action[dim] >= 1.5);
               const badgeNames = badges.map(b => dimensionNames[b]).join(', ');
 
               return (
@@ -951,7 +957,7 @@ export default function App() {
         )}
         
         {currentRoute.startsWith('type-') && (
-          <TypeDetail typeId={currentRoute.split('-')[1]} />
+          <TypeDetail typeId={currentRoute.split('-')[1] as Dimension} />
         )}
 
         {currentRoute === 'actions' && (

@@ -1,0 +1,22 @@
+---
+description: Load work shell environment before running terminal commands
+alwaysApply: true
+---
+
+# Shell environment
+
+Before running any terminal command in this project, source the work profile first:
+
+```bash
+source ~/.zsh-work/.zprofile
+```
+
+This ensures the correct Cloudflare API token and other work credentials are loaded (not personal account credentials from the default shell).
+
+For Cloudflare Wrangler commands in this project, also set:
+
+```bash
+export CLOUDFLARE_ACCOUNT_ID=880ecf74da02edf846e1a540a835df40
+```
+
+Or use `npm run deploy` / `npm run deploy:preview`, which handle both automatically via `scripts/deploy.sh`.
